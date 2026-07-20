@@ -14,11 +14,13 @@ app.use(helmet({ crossOriginResourcePolicy: false }));
 
 const allowedOrigins = config.clientUrl.split(',').map(origin => origin.trim()).filter(Boolean);
 const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+const vercelOriginPattern = /^https:\/\/[\w-]+\.vercel\.app$/;
 
 function isAllowedOrigin(origin) {
   if (!origin) return true;
   if (allowedOrigins.includes(origin)) return true;
   if (!config.isProduction && localOriginPattern.test(origin)) return true;
+  if (config.isProduction && vercelOriginPattern.test(origin)) return true;
   return false;
 }
 

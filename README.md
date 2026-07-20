@@ -115,15 +115,16 @@ The React client and Express API must be deployed as two Vercel projects.
 ### Frontend project
 
 1. Import the same repository and set **Root Directory** to `client`.
-2. Add this environment variable:
+2. Deploy the latest commit. The included `client/vercel.json` proxies `/api/*` to the Render backend, so you usually do **not** need `VITE_API_URL`.
+3. Optional alternative: set this environment variable instead of using the proxy rewrite:
 
    ```env
-   VITE_API_URL=https://<backend-project>.vercel.app/api
+   VITE_API_URL=https://blood-bank-management-system-i7pj.onrender.com/api
    ```
 
-3. Redeploy the frontend. Vite environment variables are embedded at build time, so changing this value always requires a new deployment.
+4. Redeploy the frontend after changing environment variables. Vite embeds `VITE_*` values at build time.
 
-The frontend cannot authenticate by itself. A missing `VITE_API_URL`, an unavailable MongoDB Atlas cluster, or an unseeded administrator will prevent production login.
+If login shows a 404 for `/api/auth/login`, redeploy the latest `client` commit or set `VITE_API_URL` as shown above. The frontend cannot authenticate by itself; the backend must be running and seeded with `pnpm seed:admin`.
 
 ## Import the existing SQLite data
 

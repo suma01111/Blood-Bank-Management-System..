@@ -10,7 +10,14 @@ import { config } from './config.js';
 
 export const app = express();
 app.use(helmet({ crossOriginResourcePolicy: false }));
-app.use(cors({ origin: config.clientUrl }));
+const allowedOrigins = config.clientUrl.split(',').map(origin => origin.trim()).filter(Boolean);
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('This website is not allowed to access the Blood Bank API.'));
+  },
+  credentials: false
+}));
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));

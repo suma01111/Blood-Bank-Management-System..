@@ -11,8 +11,8 @@ export function Layout() {
     <nav className="navbar navbar-expand-lg navbar-dark">
       <div className="container">
         <Link className="navbar-brand" to="/" onClick={close}><img className="brand-logo" src="/icon-192.png" alt="" />Blood Bank</Link>
-        <button className="navbar-toggler" type="button" aria-label="Toggle navigation" aria-expanded={open} onClick={() => setOpen(!open)}><span className="navbar-toggler-icon" /></button>
-        <div className={`collapse navbar-collapse ${open ? 'show' : ''}`}><ul className="navbar-nav ms-auto">
+        <button className="navbar-toggler" type="button" aria-label="Toggle navigation" aria-controls="mainNavigation" aria-expanded={open} onClick={() => setOpen(!open)}><span className="navbar-toggler-icon" /></button>
+        <div id="mainNavigation" className={`collapse navbar-collapse ${open ? 'show' : ''}`}><ul className="navbar-nav ms-auto">
           <li className="nav-item"><NavLink className="nav-link" to="/" onClick={close}>Home</NavLink></li>
           {user ? <>
             <li className="nav-item"><NavLink className="nav-link" to="/dashboard" onClick={close}>Dashboard</NavLink></li>
@@ -38,4 +38,4 @@ export function Protected({ roles }) {
 export const Alert = ({ type = 'danger', children, onClose }) => children && <div className={`alert alert-${type} alert-dismissible fade show`} role="alert">{children}{onClose && <button type="button" className="btn-close" aria-label="Close" onClick={onClose} />}</div>;
 export const Spinner = () => <div className="text-center py-5"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading</span></div></div>;
 export const Field = ({ label, as = 'input', children, ...props }) => <div className="mb-3"><label className="form-label" htmlFor={props.id || props.name}>{label}</label>{as === 'select' ? <select className="form-select" id={props.id || props.name} {...props}>{children}</select> : as === 'textarea' ? <textarea className="form-control" id={props.id || props.name} {...props} /> : <input className="form-control" id={props.id || props.name} {...props} />}</div>;
-export const InventoryTable = ({ inventory = [] }) => <div className="table-responsive"><table className="table"><thead><tr><th>Blood Group</th><th>Units Available</th></tr></thead><tbody>{inventory.map(item => <tr key={item._id || item.bloodGroup}><td>{item.bloodGroup}</td><td>{item.unitsAvailable}</td></tr>)}</tbody></table></div>;
+export const InventoryTable = ({ inventory = [] }) => <div className="table-responsive"><table className="table inventory-table"><thead><tr><th>Blood Group</th><th>Units Available</th></tr></thead><tbody>{inventory.map(item => <tr key={item._id || item.bloodGroup}><td>{item.bloodGroup}</td><td>{item.unitsAvailable}</td></tr>)}</tbody></table></div>;

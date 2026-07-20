@@ -70,6 +70,40 @@ To complete the local `pooja` recipient and `dipu` donor profiles shown in the d
 
 For a production build, run `pnpm build` and then `pnpm start`. Express serves the compiled React app on `http://localhost:5050`.
 
+## Deploy on Vercel
+
+The React client and Express API must be deployed as two Vercel projects.
+
+### Backend project
+
+1. Import this repository into Vercel and set **Root Directory** to `server`.
+2. Add these environment variables:
+
+   ```env
+   MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/blood_bank
+   JWT_SECRET=<long-random-production-secret>
+   CLIENT_URL=https://blood-bank-management-system-client.vercel.app
+   ADMIN_USERNAME=admin
+   ADMIN_PASSWORD=<strong-production-password>
+   ADMIN_EMAIL=admin@your-domain.com
+   ```
+
+3. Deploy and verify `https://<backend-project>.vercel.app/api/health` returns `{"status":"ok"}`.
+4. Run `pnpm seed:admin` once with the same production `MONGODB_URI` to create the administrator. Run `pnpm seed:demo` as well if demonstration records are required.
+
+### Frontend project
+
+1. Import the same repository and set **Root Directory** to `client`.
+2. Add this environment variable:
+
+   ```env
+   VITE_API_URL=https://<backend-project>.vercel.app/api
+   ```
+
+3. Redeploy the frontend. Vite environment variables are embedded at build time, so changing this value always requires a new deployment.
+
+The frontend cannot authenticate by itself. A missing `VITE_API_URL`, an unavailable MongoDB Atlas cluster, or an unseeded administrator will prevent production login.
+
 ## Import the existing SQLite data
 
 The original database is retained locally at `data/legacy-django.sqlite3`. Start MongoDB, then run:

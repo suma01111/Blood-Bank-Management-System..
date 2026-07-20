@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { User, Donor, Recipient } from '../models.js';
 import { config } from '../config.js';
 import { protect } from '../middleware/auth.js';
+import { logger } from '../logger.js';
 
 const router = Router();
 const tokenFor = user => jwt.sign({ id: user._id }, config.jwtSecret, { expiresIn: '7d' });
@@ -21,15 +22,27 @@ router.post('/signup', async (req, res, next) => {
     if (userType === 'donor') await Donor.create({ user: user._id });
     if (userType === 'recipient') await Recipient.create({ user: user._id });
     res.status(201).json({ token: tokenFor(user), user: publicUser(user) });
-  } catch (error) { next(error); }
+  } catch (error) {
+    logger.requestError(req, error, 'Signup failed');
+    next(error);
+  }
 });
 
 router.post('/login', async (req, res, next) => {
   try {
-    const user = await User.findOne({ username: req.body.username }).select('+password');
-    if (!user || !(await bcrypt.compare(req.body.password || '', user.password))) return res.status(401).json({ message: 'Invalid username or password.' });
+    const username = req.body.username?.trim();
+    if (!username || !req.body.password) return res.status(400).json({ message: 'Username and password are required.' });
+    const user = await User.findOne({ username }).select('+password');
+    if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+      logger.warn('Login rejected', { username, reason: user ? 'invalid-password' : 'unknown-user' });
+      return res.status(401).json({ message: 'Invalid username or password.' });
+    }
+    logger.info('Login successful', { username, userType: user.userType });
     res.json({ token: tokenFor(user), user: publicUser(user) });
-  } catch (error) { next(error); }
+  } catch (error) {
+    logger.requestError(req, error, 'Login failed');
+    next(error);
+  }
 });
 
 router.get('/me', protect, (req, res) => res.json({ user: publicUser(req.user) }));

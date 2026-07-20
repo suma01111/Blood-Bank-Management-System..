@@ -76,7 +76,12 @@ try {
 
   for (let index = 0; index < 80; index += 1) {
     const donor = donors[index];
-    await Donation.findOneAndUpdate({ donor: donor._id, donatedAt: daysAgo(index + 1) }, { donor: donor._id, name: firstNames[index % firstNames.length], bloodGroup: donor.bloodGroup, medicalCheckupDate: donor.medicalCheckupDate, donatedAt: daysAgo(index + 1) }, { upsert: true });
+    const legacyId = 100000 + index;
+    await Donation.findOneAndUpdate(
+      { legacyId },
+      { legacyId, donor: donor._id, name: firstNames[index % firstNames.length], bloodGroup: donor.bloodGroup, medicalCheckupDate: donor.medicalCheckupDate, donatedAt: daysAgo(index + 1) },
+      { upsert: true, new: true, runValidators: true }
+    );
   }
 
   console.log(`Demo data ready: 160 donors, 120 recipients, ${hospitals.length} hospitals, 120 requests, 80 donations, and inventory for 8 blood groups.`);

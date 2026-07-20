@@ -72,6 +72,27 @@ For a production build, run `pnpm build` and then `pnpm start`. Express serves t
 
 ## Deploy on Vercel
 
+### Recommended: one Vercel project
+
+Import the complete repository and leave **Root Directory** empty. The root `vercel.json` deploys the React client and Express API together, so `/api/auth/login` works on the same domain as the website.
+
+If Vercel shows `405 Method Not Allowed` for `/api/auth/login`, the project is still using `client` as its Root Directory. Clear that setting and redeploy the latest commit. A generated preview address such as `project-abc123.vercel.app` may also be protected by Vercel Authentication; test the assigned production domain or disable preview protection in **Settings → Deployment Protection**.
+
+Add these environment variables before deploying:
+
+```env
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/blood_bank
+JWT_SECRET=<long-random-production-secret>
+CLIENT_URL=https://blood-bank-management-system-client.vercel.app
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=<strong-production-password>
+ADMIN_EMAIL=admin@your-domain.com
+```
+
+Do not set `VITE_API_URL` for this single-project deployment; the client uses the same-domain `/api` endpoint. After deployment, verify `/api/health` returns `{"status":"ok"}`. Seed the administrator against the same MongoDB Atlas database before logging in.
+
+### Alternative: separate Vercel projects
+
 The React client and Express API must be deployed as two Vercel projects.
 
 ### Backend project

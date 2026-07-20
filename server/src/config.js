@@ -12,5 +12,6 @@ export const config = {
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   adminEmail: process.env.ADMIN_EMAIL || 'admin@bloodbank.com',
   adminUsername: process.env.ADMIN_USERNAME || 'admin',
-  adminPassword: process.env.ADMIN_PASSWORD || 'Admin@123'
+  adminPassword: process.env.ADMIN_PASSWORD || 'Admin@123',
+  isProduction: process.env.NODE_ENV === 'production'
 };

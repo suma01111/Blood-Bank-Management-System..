@@ -19,6 +19,7 @@ export const errorMessage = error => {
   if (!error.response) return import.meta.env.DEV
     ? 'The Blood Bank server is not running. Start the complete application with “pnpm dev” and make sure MongoDB is running.'
     : 'The Blood Bank API is unavailable. Please try again shortly.';
+  if (error.response.status === 405 && !configuredApiUrl) return 'The API is not included in this deployment. Redeploy the complete repository from its root folder.';
   if (error.response.status === 404 && !configuredApiUrl) return 'The production API address is not configured. Add VITE_API_URL in the frontend deployment settings and redeploy.';
   return error.response.data?.message || 'Unable to complete the request. Please try again.';
 };

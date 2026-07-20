@@ -2,6 +2,8 @@ import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import mongoose from 'mongoose';
 import request from 'supertest';
+import bcrypt from 'bcryptjs';
+import { User } from '../src/models.js';
 
 process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/blood_bank_api_test';
 process.env.JWT_SECRET = 'integration-test-secret';
@@ -41,16 +43,20 @@ test('public health and inventory APIs respond', async () => {
   assert.ok(Array.isArray(inventory.body.inventory));
 });
 
-test('signup creates donor, recipient and administrator sessions', async () => {
+test('signup creates donor and recipient sessions but rejects administrators', async () => {
   const donor = await request(app).post('/api/auth/signup').send(account('donor'));
   const recipient = await request(app).post('/api/auth/signup').send(account('recipient'));
   const admin = await request(app).post('/api/auth/signup').send(account('admin'));
   assert.equal(donor.status, 201);
   assert.equal(recipient.status, 201);
-  assert.equal(admin.status, 201);
+  assert.equal(admin.status, 400);
   donorToken = donor.body.token;
   recipientToken = recipient.body.token;
-  adminToken = admin.body.token;
+
+  await User.create({ ...account('admin'), password: await bcrypt.hash(account('admin').password, 12) });
+  const adminLogin = await request(app).post('/api/auth/login').send({ username: account('admin').username, password: account('admin').password });
+  assert.equal(adminLogin.status, 200);
+  adminToken = adminLogin.body.token;
 });
 
 test('login, current-user and authentication errors respond correctly', async () => {

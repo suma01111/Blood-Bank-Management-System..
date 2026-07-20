@@ -14,7 +14,7 @@ router.post('/signup', async (req, res, next) => {
   try {
     const { username, email, phoneNumber, address, userType, password, passwordConfirm } = req.body;
     if (!username || !email || !phoneNumber || !address || !userType || !password) return res.status(400).json({ message: 'All fields are required.' });
-    if (!['donor', 'recipient', 'admin'].includes(userType)) return res.status(400).json({ message: 'Choose a valid account type.' });
+    if (!['donor', 'recipient'].includes(userType)) return res.status(400).json({ message: 'Public registration is available only for donors and recipients.' });
     if (password.length < 8) return res.status(400).json({ message: 'Password must contain at least 8 characters.' });
     if (password !== passwordConfirm) return res.status(400).json({ message: 'Passwords do not match.' });
     if (await User.exists({ $or: [{ username }, { email: email.toLowerCase() }] })) return res.status(409).json({ message: 'Username or email is already registered.' });

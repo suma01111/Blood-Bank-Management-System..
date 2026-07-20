@@ -1,0 +1,12 @@
+node_modules/
+client/dist/
+.env
+.DS_Store
+coverage/
+*.log
+data/*.sqlite3
+.mongodb/
+.pnpm-store/
+myenv/
+__pycache__/
+*.pyc

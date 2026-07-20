@@ -5,6 +5,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 main { flex: 1; }
 .navbar { background-color: var(--primary-color); box-shadow: 0 2px 4px rgba(0,0,0,.1); }
 .navbar-brand { color: white !important; font-weight: bold; }
+.brand-logo { width: 28px; height: 28px; border-radius: 7px; margin-right: .55rem; object-fit: cover; }
 .nav-link { color: rgba(255,255,255,.9) !important; transition: color .3s ease; }
 .nav-link:hover, .nav-link.active { color: white !important; }
 .nav-button { background: none; border: 0; width: 100%; text-align: left; }

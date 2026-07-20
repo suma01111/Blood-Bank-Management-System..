@@ -10,7 +10,7 @@ export function Layout() {
   return <div className="app-shell">
     <nav className="navbar navbar-expand-lg navbar-dark">
       <div className="container">
-        <Link className="navbar-brand" to="/" onClick={close}><i className="fas fa-heartbeat me-2" />Blood Bank</Link>
+        <Link className="navbar-brand" to="/" onClick={close}><img className="brand-logo" src="/icon-192.png" alt="" />Blood Bank</Link>
         <button className="navbar-toggler" type="button" aria-label="Toggle navigation" aria-expanded={open} onClick={() => setOpen(!open)}><span className="navbar-toggler-icon" /></button>
         <div className={`collapse navbar-collapse ${open ? 'show' : ''}`}><ul className="navbar-nav ms-auto">
           <li className="nav-item"><NavLink className="nav-link" to="/" onClick={close}>Home</NavLink></li>

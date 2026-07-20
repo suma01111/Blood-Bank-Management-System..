@@ -17,7 +17,13 @@ export default function Requests() {
     setLoading(true);
     try {
       const response = await api.get('/admin/requests');
-      setData({ ...emptyData, ...response.data, counts: { ...emptyData.counts, ...response.data.counts } });
+      setData({
+        ...emptyData,
+        ...response.data,
+        requests: Array.isArray(response.data.requests) ? response.data.requests : [],
+        inventory: Array.isArray(response.data.inventory) ? response.data.inventory : [],
+        counts: { ...emptyData.counts, ...(response.data.counts || {}) }
+      });
     } catch (error) {
       setNotice({ type: 'danger', text: errorMessage(error) });
     } finally {

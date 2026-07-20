@@ -8,24 +8,27 @@ export default function Dashboard() {
   const { user } = useAuth(); const [data, setData] = useState(); const [error, setError] = useState('');
   useEffect(() => { api.get('/dashboard').then(response => setData(response.data)).catch(e => setError(errorMessage(e))); }, []);
   if (error) return <Alert>{error}</Alert>; if (!data) return <Spinner />;
+  const stats = { donors: 0, recipients: 0, hospitals: 0, pendingRequests: 0, totalRecords: 0, unitsAvailable: 0, completedRequests: 0, fulfillmentRate: 0, ...(data.stats || {}) };
+  const inventory = Array.isArray(data.inventory) ? data.inventory : [];
   return <><div className="row mb-4"><div className="col-12"><h2>Welcome, {user.username}!</h2><p className="text-muted">Here's your dashboard overview</p></div></div>
     {user.userType === 'donor' && <><StatCards items={[['Your Blood Group', data.donor?.bloodGroup || 'Not set'], ['Last Donation', formatDate(data.donor?.lastDonationDate) || 'Never'], ['Next Checkup', formatDate(data.donor?.medicalCheckupDate) || 'Not set']]} /><Action title="Donate Blood" text="Ready to make a difference? Schedule your next blood donation." href="/donate" label="Donate Now" /></>}
     {user.userType === 'recipient' && <RecipientDashboard data={data} />}
     {user.userType === 'admin' && <>
-      <StatCards items={[['Total Donors', data.stats.donors], ['Total Recipients', data.stats.recipients], ['Total Hospitals', data.stats.hospitals], ['Pending Requests', data.stats.pendingRequests]]} cols="col-md-3" />
-      <div className="row g-3 mb-4"><MiniMetric icon="fa-database" label="Managed Records" value={data.stats.totalRecords} /><MiniMetric icon="fa-droplet" label="Units Available" value={data.stats.unitsAvailable} /><MiniMetric icon="fa-clipboard-check" label="Completed Requests" value={data.stats.completedRequests} /><MiniMetric icon="fa-chart-line" label="Fulfillment Rate" value={`${data.stats.fulfillmentRate}%`} /></div>
-      <div className="row mb-4 g-4"><div className="col-lg-7"><div className="card h-100"><div className="card-body"><h5>Blood Inventory</h5><p className="text-muted small">Live availability across all supported blood groups.</p><InventoryTable inventory={data.inventory} /></div></div></div><div className="col-lg-5"><div className="card h-100"><div className="card-body"><h5>Quick Actions</h5><p className="text-muted small">Review operational data and respond to emergencies.</p><div className="d-grid gap-2"><Link className="btn btn-primary" to="/manage-hospitals">Manage Hospitals</Link><Link className="btn btn-primary" to="/manage-requests">Manage Blood Requests</Link></div><hr /><h6 className="mt-3">Platform Capabilities</h6><ul className="dashboard-capabilities"><li>Structured and validated donor-recipient records</li><li>Indexed compatibility-based donor matching</li><li>Atomic inventory updates during approvals</li><li>Responsive emergency request workflow</li></ul></div></div></div></div>
+      <StatCards items={[['Total Donors', stats.donors], ['Total Recipients', stats.recipients], ['Total Hospitals', stats.hospitals], ['Pending Requests', stats.pendingRequests]]} cols="col-md-3" />
+      <div className="row g-3 mb-4"><MiniMetric icon="fa-database" label="Managed Records" value={stats.totalRecords} /><MiniMetric icon="fa-droplet" label="Units Available" value={stats.unitsAvailable} /><MiniMetric icon="fa-clipboard-check" label="Completed Requests" value={stats.completedRequests} /><MiniMetric icon="fa-chart-line" label="Fulfillment Rate" value={`${stats.fulfillmentRate}%`} /></div>
+      <div className="row mb-4 g-4"><div className="col-lg-7"><div className="card h-100"><div className="card-body"><h5>Blood Inventory</h5><p className="text-muted small">Live availability across all supported blood groups.</p><InventoryTable inventory={inventory} /></div></div></div><div className="col-lg-5"><div className="card h-100"><div className="card-body"><h5>Quick Actions</h5><p className="text-muted small">Review operational data and respond to emergencies.</p><div className="d-grid gap-2"><Link className="btn btn-primary" to="/manage-hospitals">Manage Hospitals</Link><Link className="btn btn-primary" to="/manage-requests">Manage Blood Requests</Link></div><hr /><h6 className="mt-3">Platform Capabilities</h6><ul className="dashboard-capabilities"><li>Structured and validated donor-recipient records</li><li>Indexed compatibility-based donor matching</li><li>Atomic inventory updates during approvals</li><li>Responsive emergency request workflow</li></ul></div></div></div></div>
     </>}
   </>;
 }
 const formatDate = value => value && new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).format(new Date(value));
-function StatCards({ items, cols = 'col-md-4' }) { return <div className="row mb-4 g-3">{items.map(([title,value]) => <div className={cols} key={title}><div className="card h-100"><div className="card-body"><h5>{title}</h5><p className="display-6">{value}</p></div></div></div>)}</div>; }
+function StatCards({ items = [], cols = 'col-md-4' }) { return <div className="row mb-4 g-3">{items.map(([title,value]) => <div className={cols} key={title}><div className="card h-100"><div className="card-body"><h5>{title}</h5><p className="display-6">{value}</p></div></div></div>)}</div>; }
 function Action({ title, text, href, label }) { return <div className="row"><div className="col-12"><div className="card"><div className="card-body"><h5>{title}</h5><p>{text}</p><Link className="btn btn-primary" to={href}>{label}</Link></div></div></div></div>; }
 function MiniMetric({ icon, label, value }) { return <div className="col-6 col-lg-3"><div className="card mini-metric h-100"><div className="card-body"><i className={`fas ${icon}`} /><div><strong>{value}</strong><span>{label}</span></div></div></div></div>; }
 function RecipientDashboard({ data }) {
   const recipient = data.recipient;
-  const requests = data.requests || [];
-  const available = data.inventory.find(item => item.bloodGroup === recipient?.bloodGroup)?.unitsAvailable || 0;
+  const requests = Array.isArray(data.requests) ? data.requests : [];
+  const inventory = Array.isArray(data.inventory) ? data.inventory : [];
+  const available = inventory.find(item => item.bloodGroup === recipient?.bloodGroup)?.unitsAvailable || 0;
   const latest = requests[0];
   return <>
     <StatCards items={[['Your Blood Group', recipient?.bloodGroup || 'Not set'], ['Hospital', recipient?.hospital?.name || 'Not selected'], ['Units Required', recipient?.unitsRequired || 0]]} />
